@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="./manifest.json">
   <title>Document</title>
 </head>
+
 <body>
   <h5>Register Form</h5>
   <form>
@@ -33,18 +36,56 @@
   <form>
     <p>
       <label for="username">username</label>
-      <input type="text" name="username" id="username">
+      <input type="text" name="username" id="userName">
     </p>
     <p>
       <label for="password">password</label>
-      <input type="password" name="password" id="password">
+      <input type="password" name="password" id="passWord">
     </p>
     <p>
       <button id="login">Login</button>
     </p>
   </form>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script>
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then((reg) => {
+          console.log('Service worker registered.', reg);
+        });
+    });
+  }
+
+  document.getElementById('register').addEventListener('click', event => {
+    event.preventDefault()
+
+    axios.post('/api/users/register', {
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      username: document.getElementById('username').value,
+      password: document.getElementById('password').value
+    })
+      .then(() => alert('User registered!'))
+      .catch(err => console.error(err))
+  })
+
+  document.getElementById('login').addEventListener('click', event => {
+    event.preventDefault()
     
+    axios.post('/api/users/login', {
+      username: document.getElementById('userName').value,
+      password: document.getElementById('passWord').value
+    })
+      .then(({ data: token }) => {
+        localStorage.setItem('token', token)
+        window.location = '/'
+      })
+      .catch(err => console.error(err))
+  })
+
   </script>
 </body>
+
 </html>

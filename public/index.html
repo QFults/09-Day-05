@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="./manifest.json">
   <title>Document</title>
 </head>
+
 <body>
   <form>
     <p>
@@ -25,8 +28,72 @@
     </p>
   </form>
   <ul id="menu"></ul>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="./db.js"></script>
   <script>
 
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then((reg) => {
+            console.log('Service worker registered.', reg);
+          });
+      });
+    }
+
+    axios.get('/api/user', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    })
+      .then(({ data: user }) => {
+        user.menu.forEach(item => {
+          let itemElem = document.createElement('li')
+          itemElem.innerHTML = `
+          <p>${item.name}</p>
+          <p>${item.price}</p>
+          <p>${item.description}</p>
+        `
+          document.getElementById('menu').append(itemElem)
+        })
+      })
+
+    document.getElementById('addItem').addEventListener('click', event => {
+      event.preventDefault()
+
+      let item = {
+        name: document.getElementById('name').value,
+        price: document.getElementById('price').value,
+        description: document.getElementById('description').value
+      }
+
+      axios.post('/api/items', item, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+        .then(({ data }) => {
+          let itemElem = document.createElement('li')
+          itemElem.innerHTML = `
+          <p>${item.name}</p>
+          <p>${item.price}</p>
+          <p>${item.description}</p>
+          `
+          document.getElementById('menu').append(itemElem)
+        })
+        .catch(err => {
+          console.error(err)
+          saveRecord(item)
+          let itemElem = document.createElement('li')
+          itemElem.innerHTML = `
+          <p>${item.name}</p>
+          <p>${item.price}</p>
+          <p>${item.description}</p>
+          `
+          document.getElementById('menu').append(itemElem)
+        })
+    })
   </script>
 </body>
+
 </html>

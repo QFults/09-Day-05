@@ -14,4 +14,10 @@ router.post('/items', passport.authenticate('jwt'), (req, res) => Item.create({
     .catch(err => console.log(err)))
   .catch(err => console.log(err)))
 
+router.post('/items/bulk', passport.authenticate('jwt'), (req, res) => {
+  Item.insertMany(req.body)
+    .then(items => res.json(items))
+    .catch(err => console.log(err))
+})
+
 module.exports = router
