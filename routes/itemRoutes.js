@@ -2,7 +2,6 @@ const router = require('express').Router()
 const { Item, User } = require('../models')
 const passport = require('passport')
 
-
 // POST one Item
 router.post('/items', passport.authenticate('jwt'), (req, res) => Item.create({
   name: req.body.name,
